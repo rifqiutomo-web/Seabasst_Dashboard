@@ -44,8 +44,8 @@ h3{font-size:13px;font-weight:600;color:var(--mute);padding:20px 18px 4px}
 .fab button{pointer-events:auto;width:64px;height:64px;border-radius:50%;font-size:34px;line-height:1;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .fab .m{background:var(--out)}.fab .p{background:var(--in)}
 #ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20}
-#sheet{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--surf);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;transform:translateY(100%);transition:transform .22s ease;z-index:21}
-#sheet.open{transform:none}
+#sheet,#pk{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--surf);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;transform:translateY(100%);transition:transform .22s ease;z-index:21}
+#sheet.open,#pk.open{transform:none}
 .tt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .tt button{padding:10px;border-radius:12px;font-weight:600;background:var(--bg);color:var(--mute)}
 .tt button.on.o{background:var(--out);color:#fff}.tt button.on.i{background:var(--in);color:#fff}
@@ -60,6 +60,18 @@ input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid 
 #save{background:var(--acc);color:#fff}#del{background:none;color:var(--out);border:1px solid var(--out);flex:.5}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;display:none;z-index:30;max-width:90%}
 button:disabled{opacity:.5}
+#lbl{font-size:17px;font-weight:800;padding:6px 10px;border-radius:10px}
+#anb{font-size:18px;width:40px;height:34px}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.ph button{font-size:26px;width:44px;height:36px;color:var(--acc)}.ph b{font-size:17px}
+.pg{display:grid;gap:6px}.pg.c3{grid-template-columns:repeat(3,1fr)}.pg.c4{grid-template-columns:repeat(4,1fr)}.pg.c7{grid-template-columns:repeat(7,1fr)}
+.pb{position:relative;padding:11px 0;border-radius:10px;background:var(--bg);font-weight:600;font-size:14px}.pb.on{background:var(--acc);color:#fff}
+.pb.has::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--acc)}.pb.on.has::after{background:#fff}
+.wd{font-size:11px;color:var(--mute);text-align:center;padding:4px 0}
+main.ia{animation:inL .22s ease}main.ib{animation:inR .22s ease}@keyframes inL{from{transform:translateX(28px);opacity:.3}}@keyframes inR{from{transform:translateX(-28px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){main.ia,main.ib{animation:none}}
+#an{display:none;position:fixed;inset:0;background:var(--bg);z-index:25;overflow:auto;max-width:480px;margin:0 auto;padding:env(safe-area-inset-top) 0 40px}
+.ah{display:flex;justify-content:space-between;align-items:center;padding:14px 18px}.ah b{font-size:18px;font-weight:800}.ah button{font-size:20px;width:40px;height:36px}
+#ab svg{width:100%;display:block}#ab h3{padding:18px 0 4px}#ab .sum{padding:10px 0}
 #ks{display:none;position:fixed;inset:0;background:var(--bg);z-index:40;padding:90px 24px}
 #ks h2{font-size:20px;margin-bottom:6px}#ks p{font-size:13px;color:var(--mute);margin-bottom:14px}
 .pri{width:100%;margin-top:14px;padding:13px;border-radius:12px;font-weight:800;background:var(--acc);color:#fff}
@@ -79,8 +91,8 @@ button:disabled{opacity:.5}
 </head>
 <body>
 <header>
-  <div class="top"><div class="seg"><button id="mDay">Hari</button><button id="mMon" class="on">Bulan</button><button id="mYr">Tahun</button></div><button id="rf" aria-label="Segarkan data">⟳</button></div>
-  <div class="nav"><button id="prev" aria-label="Sebelumnya">‹</button><b id="lbl"></b><button id="next" aria-label="Berikutnya">›</button></div>
+  <div class="top"><div class="seg"><button id="mDay">Hari</button><button id="mMon" class="on">Bulan</button><button id="mYr">Tahun</button></div><div><button id="anb" aria-label="Analitik">📊</button><button id="rf" aria-label="Segarkan data">⟳</button></div></div>
+  <div class="nav"><button id="prev" aria-label="Sebelumnya">‹</button><button id="lbl" aria-label="Pilih periode"></button><button id="next" aria-label="Berikutnya">›</button></div>
   <div class="sum"><div>Masuk<b id="sin"></b></div><div>Keluar<b id="sout"></b></div><div>Selisih<b id="sbal"></b></div></div>
 </header>
 <main>
@@ -100,6 +112,10 @@ button:disabled{opacity:.5}
   <label for="wkt">Waktu</label><input id="wkt" type="datetime-local">
   <div class="act"><button id="del">Hapus</button><button id="save">Simpan</button></div>
 </div>
+<div id="pk"><div class="ph"><button data-pn="-1" aria-label="Sebelumnya">‹</button><b id="pt"></b><button data-pn="1" aria-label="Berikutnya">›</button></div><div id="pg" class="pg"></div><button class="pri" id="ptd"></button></div>
+<div id="an"><div class="ah"><b>Analitik</b><button id="ax" aria-label="Tutup">✕</button></div>
+<div class="seg sm" id="ar" style="margin:0 18px 4px"><button data-r="3">3B</button><button data-r="6" class="on">6B</button><button data-r="12">12B</button><button data-r="0">Semua</button></div>
+<div class="hist" id="ab"></div></div>
 <div id="ks"><h2>Masukkan API secret</h2><p>Hanya perlu sekali di perangkat ini.</p><input id="kin" type="password" autocomplete="off" placeholder="API secret"><button class="pri" id="kok">Simpan</button></div>
 <div id="toast"></div>
 <script>
@@ -159,7 +175,7 @@ async function refresh() {
     const r = await Promise.all([call({action: "list"}), call({action: "budgets"})]);
     all = r[0]; budgets = r[1]; lastSync = Date.now();
     try { localStorage.setItem("fc", JSON.stringify({all, budgets})); } catch (e) {}
-    render();
+    render(); if ($("an").style.display === "block") renderAn();
   } catch (e) { toast(e.message); }
   $("rf").classList.remove("spin");
 }
@@ -182,7 +198,7 @@ function ring(p) {
   return `<svg class="rg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="18" cy="18" r="15.9155" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${d} ${100 - d}" transform="rotate(-90 18 18)"/><text x="18" y="21.5" text-anchor="middle" font-size="${!inf && p >= 100 ? 9 : 10}" font-weight="800" fill="${col}">${inf ? "!" : Math.round(p)}</text></svg>`;
 }
 function render() {
-  $("lbl").textContent = label();
+  $("lbl").textContent = label() + " ▾";
   const [f, t] = range();
   const per = all.filter(r => { const d = r.moment.substring(0, 10); return d >= f && d <= t; });
   const cin = per.filter(r => r.tipe === "In").reduce((s, r) => s + r.nominal, 0);
@@ -249,7 +265,7 @@ function openSheet(r, type) {
   requestAnimationFrame(() => $("sheet").classList.add("open"));
   if (!r) setTimeout(() => $("nom").focus(), 250);
 }
-function closeSheet() { $("sheet").classList.remove("open"); $("ov").style.display = "none"; }
+function closeSheet() { $("sheet").classList.remove("open"); $("pk").classList.remove("open"); $("ov").style.display = "none"; }
 // Optimistic: tampilan langsung berubah, sinkron ke sheet jalan di belakang.
 async function save() {
   const nominal = Number(String($("nom").value).replace(/[^\d]/g, ""));
@@ -281,6 +297,7 @@ function shift(d) {
   if (mode === "day") cur.setDate(cur.getDate() + d);
   else if (mode === "year") cur = new Date(cur.getFullYear() + d, cur.getMonth(), 1);
   else cur = new Date(cur.getFullYear(), cur.getMonth() + d, 1);
+  const m = document.querySelector("main"); m.classList.remove("ia", "ib"); void m.offsetWidth; m.classList.add(d > 0 ? "ia" : "ib");
   render();
 }
 function setMode(m) {
@@ -318,6 +335,94 @@ $("hs").onclick = e => {
 };
 $("nom").oninput = e => { const v = e.target.value.replace(/[^\d]/g, ""); e.target.value = v ? Number(v).toLocaleString("id-ID") : ""; };
 document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastSync > 60000) refresh(); });
+
+// ===== Picker periode =====
+let pv = {y: 0, m: 0};
+function openPick() { pv.y = cur.getFullYear(); pv.m = cur.getMonth(); renderPick(); $("ov").style.display = "block"; requestAnimationFrame(() => $("pk").classList.add("open")); }
+function renderPick() {
+  const cy = cur.getFullYear(), cm = cur.getMonth(); let head, body, cls;
+  if (mode === "month") {
+    head = pv.y; cls = "c3";
+    body = MON.map((n, i) => `<button class="pb${pv.y === cy && i === cm ? " on" : ""}" data-pm="${i}">${n.substring(0, 3)}</button>`).join("");
+  } else if (mode === "year") {
+    head = (pv.y - 5) + " – " + (pv.y + 6); cls = "c4";
+    body = Array.from({length: 12}, (_, i) => pv.y - 5 + i).map(y => `<button class="pb${y === cy ? " on" : ""}" data-py="${y}">${y}</button>`).join("");
+  } else {
+    head = MON[pv.m] + " " + pv.y; cls = "c7";
+    const has = new Set(all.map(r => r.moment.substring(0, 10))), first = new Date(pv.y, pv.m, 1).getDay(), nd = new Date(pv.y, pv.m + 1, 0).getDate();
+    body = DAYN.map(d => `<span class="wd">${d}</span>`).join("") + "<span></span>".repeat(first);
+    for (let d = 1; d <= nd; d++) { const k = ymd(new Date(pv.y, pv.m, d)); body += `<button class="pb${k === ymd(cur) ? " on" : ""}${has.has(k) ? " has" : ""}" data-pd="${d}">${d}</button>`; }
+  }
+  $("pt").textContent = head; $("pg").className = "pg " + cls; $("pg").innerHTML = body;
+  $("ptd").textContent = mode === "day" ? "Hari ini" : mode === "month" ? "Bulan ini" : "Tahun ini";
+}
+$("lbl").onclick = openPick;
+$("pk").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = b.dataset, pick = c => { cur = c; closeSheet(); render(); };
+  if (d.pn) { const n = +d.pn; if (mode === "month") pv.y += n; else if (mode === "year") pv.y += 12 * n; else { const t = new Date(pv.y, pv.m + n, 1); pv.y = t.getFullYear(); pv.m = t.getMonth(); } renderPick(); }
+  else if (d.pm) pick(new Date(pv.y, +d.pm, 1));
+  else if (d.py) pick(new Date(+d.py, cur.getMonth(), 1));
+  else if (d.pd) pick(new Date(pv.y, pv.m, +d.pd));
+  else if (b.id === "ptd") { const t = new Date(); pick(mode === "day" ? new Date(t.getFullYear(), t.getMonth(), t.getDate()) : new Date(t.getFullYear(), t.getMonth(), 1)); }
+};
+
+// ===== Swipe ganti periode =====
+let tx = 0, ty = 0;
+document.addEventListener("touchstart", e => { const t = e.touches[0]; tx = t.clientX; ty = t.clientY; }, {passive: true});
+document.addEventListener("touchend", e => {
+  if ($("ov").style.display === "block" || $("an").style.display === "block" || $("ks").style.display === "block" || e.target.closest("input")) return;
+  const t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) shift(dx < 0 ? 1 : -1);
+}, {passive: true});
+
+// ===== Analitik =====
+let an = {r: 6, sel: null, cat: null, day: null};
+function renderAn() {
+  const outs = all.filter(r => r.tipe !== "In"), now = new Date(), mk = d => d.getFullYear() + "-" + pad(d.getMonth() + 1);
+  let n = an.r;
+  if (!n) { const f = outs.reduce((m, r) => r.moment < m ? r.moment : m, "9999"); n = f === "9999" ? 1 : (now.getFullYear() - +f.substring(0, 4)) * 12 + now.getMonth() - (+f.substring(5, 7) - 1) + 1; }
+  const keys = []; for (let i = n - 1; i >= 0; i--) keys.push(mk(new Date(now.getFullYear(), now.getMonth() - i, 1)));
+  if (!keys.includes(an.sel)) { an.sel = keys[keys.length - 1]; an.day = null; }
+  const cats = {}; keys.forEach(k => cats[k] = {});
+  outs.forEach(r => { const k = r.moment.substring(0, 7); if (cats[k]) cats[k][r.kategori] = (cats[k][r.kategori] || 0) + r.nominal; });
+  const sumC = o => Object.values(o).reduce((a, b) => a + b, 0), val = k => an.cat ? (cats[k][an.cat] || 0) : sumC(cats[k]);
+  const bl = an.cat ? ((budgets.find(b => b.kategori === an.cat) || {}).budget || 0) : budgets.reduce((a, b) => a + b.budget, 0);
+  const vs = keys.map(val), max = Math.max(...vs, bl, 1) * 1.1;
+  const W = 340, H = 180, L = 34, B = 20, T = 14, bw = (W - L) / keys.length, Y = v => H - B - v / max * (H - B - T);
+  let g = "";
+  [0, .5, 1].forEach(f => { const y = Y(max * f); g += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L - 4}" y="${y + 3}" text-anchor="end" font-size="8" fill="var(--mute)">${short(max * f)}</text>`; });
+  keys.forEach((k, i) => {
+    const x = L + i * bw + bw * .19, w = bw * .62, s = k === an.sel; let y0 = H - B;
+    (an.cat ? [an.cat] : Object.keys(CATS).filter(c => cats[k][c])).forEach(c => { const h = (cats[k][c] || 0) / max * (H - B - T); y0 -= h; g += `<rect x="${x}" y="${y0}" width="${w}" height="${h}" fill="${catOf(c)[1]}" opacity="${s ? 1 : .45}"/>`; });
+    if (s && vs[i] > 0) g += `<text x="${x + w / 2}" y="${y0 - 3}" text-anchor="middle" font-size="8" font-weight="800" fill="var(--ink)">${short(vs[i])}</text>`;
+    g += `<text x="${L + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="8" fill="${s ? "var(--ink)" : "var(--mute)"}" font-weight="${s ? 800 : 400}">${MON[+k.substring(5) - 1].substring(0, 3)}</text><rect data-k="${k}" x="${L + i * bw}" y="0" width="${bw}" height="${H}" fill="transparent"/>`;
+  });
+  if (bl > 0) g += `<line x1="${L}" x2="${W}" y1="${Y(bl)}" y2="${Y(bl)}" stroke="var(--out)" stroke-dasharray="4 3"/><text x="${W}" y="${Y(bl) - 3}" text-anchor="end" font-size="8" fill="var(--out)">Budget</text>`;
+  const tot = vs.reduce((a, b) => a + b, 0), mi = vs.indexOf(Math.max(...vs)), si = keys.indexOf(an.sel);
+  const prev = si > 0 ? vs[si - 1] : 0, dl = prev > 0 ? Math.round((vs[si] - prev) / prev * 100) : null;
+  const mc = Object.entries(cats[an.sel]).sort((a, b) => b[1] - a[1]), mt = sumC(cats[an.sel]);
+  const [sy, sm] = an.sel.split("-").map(Number), nd = new Date(sy, sm, 0).getDate(), dv = Array(nd + 1).fill(0);
+  outs.forEach(r => { if (r.moment.startsWith(an.sel) && (!an.cat || r.kategori === an.cat)) dv[+r.moment.substring(8, 10)] += r.nominal; });
+  const dmax = Math.max(...dv, 1) * 1.1, dbw = (W - 10) / nd; let d2 = "";
+  for (let d = 1; d <= nd; d++) {
+    const h = dv[d] / dmax * 90, x = 5 + (d - 1) * dbw;
+    d2 += `<rect x="${x + 1}" y="${100 - h}" width="${dbw - 2}" height="${h}" rx="1.5" fill="${d === an.day ? "var(--acc)" : "var(--out)"}" opacity="${an.day && d !== an.day ? .4 : .85}"/><rect data-d="${d}" x="${x}" y="0" width="${dbw}" height="112" fill="transparent"/>` + (d === 1 || d % 5 === 0 ? `<text x="${x + dbw / 2}" y="110" text-anchor="middle" font-size="7" fill="var(--mute)">${d}</text>` : "");
+  }
+  $("ab").innerHTML = `<div class="sum"><div>Rata-rata/bulan<b>${rp(tot / keys.length)}</b></div><div>Tertinggi<b>${MON[+keys[mi].substring(5) - 1].substring(0, 3)} · ${short(vs[mi])}</b></div><div>vs bulan lalu<b style="color:var(${dl === null ? "--mute" : dl > 0 ? "--out" : "--in"})">${dl === null ? "-" : (dl > 0 ? "+" : "") + dl + "%"}</b></div></div>` +
+    `<h3>Tren pengeluaran${an.cat ? " · " + esc(an.cat) : ""}</h3><svg viewBox="0 0 ${W} ${H}">${g}</svg>` +
+    `<h3>${MON[sm - 1]} ${sy} · ${rp(vs[si])}</h3><svg viewBox="0 0 ${W} 112">${d2}</svg><div class="note" style="text-align:center">${an.day ? an.day + " " + MON[sm - 1] + ": " + rp(dv[an.day]) : "Tap batang harian untuk detail"}</div>` +
+    `<h3>Kategori bulan ini</h3><div class="note">Tap kategori untuk memfilter tren</div><div class="legend" style="padding:0">` +
+    mc.map(([c, v]) => `<button class="lg${an.cat === c ? " sel" : an.cat ? " dim" : ""}" data-c="${esc(c)}"><span class="dot" style="background:${catOf(c)[1]}"></span><span class="n">${esc(c)}</span><span class="p">${Math.round(v / mt * 100)}%</span><span class="v">${rp(v)}</span></button>`).join("") + "</div>";
+}
+$("ab").onclick = e => {
+  const k = e.target.closest("[data-k]"); if (k) { an.sel = k.dataset.k; an.day = null; renderAn(); return; }
+  const d = e.target.closest("[data-d]"); if (d) { an.day = +d.dataset.d === an.day ? null : +d.dataset.d; renderAn(); return; }
+  const c = e.target.closest("[data-c]"); if (c) { an.cat = an.cat === c.dataset.c ? null : c.dataset.c; renderAn(); }
+};
+$("ar").onclick = e => { const b = e.target.closest("button"); if (!b) return; an.r = +b.dataset.r; [...$("ar").children].forEach(x => x.classList.toggle("on", x === b)); renderAn(); };
+$("anb").onclick = () => { $("an").style.display = "block"; renderAn(); };
+$("ax").onclick = () => { $("an").style.display = "none"; };
 try { if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } } catch (e) {}
 render();
 refresh();
