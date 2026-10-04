@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seabasst Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f6f4;--surf:#fff;--ink:#12201d;--mute:#6b7c78;--line:#dfe8e4;--out:#e0474c;--in:#1f9d6b;--acc:#0f766e}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1816;--surf:#16241f;--ink:#e8f1ee;--mute:#8fa39d;--line:#243630;--out:#ff6b70;--in:#3ddc97;--acc:#2dd4bf}}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{max-width:480px;margin:0 auto;min-height:100vh;padding:env(safe-area-inset-top) 0 calc(110px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+header{padding:14px 18px 6px;background:var(--surf);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.seg{display:inline-flex;background:var(--bg);border-radius:20px;padding:3px}
+.seg button{padding:5px 16px;border-radius:17px;font-size:13px;font-weight:600;color:var(--mute)}
+.seg button.on{background:var(--acc);color:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:10px 0 8px}
+.nav button{font-size:26px;width:44px;height:36px;color:var(--acc)}
+.nav b{font-size:17px;font-weight:800}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);padding:6px 0 10px;text-align:center;font-size:12px;color:var(--mute)}
+.sum b{display:block;font-size:14px;margin-top:2px}
+#sin{color:var(--in)}#sout{color:var(--out)}
+.donut{position:relative;width:240px;margin:22px auto 8px}
+.donut svg{width:100%;display:block}
+.legend,.hist{padding:0 18px}
+.lg{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.lg .n{flex:1}.lg .p{color:var(--mute);font-size:12px}.lg .v{font-weight:600;min-width:84px;text-align:right}
+h3{font-size:13px;font-weight:600;color:var(--mute);padding:20px 18px 4px}
+.day{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;color:var(--ink);padding:16px 0 6px;border-bottom:2px solid var(--line)}.day span:last-child{font-size:13px;font-weight:600;color:var(--mute)}.cg{width:100%;text-align:left;font-family:inherit}
+.rg{width:34px;height:34px;flex:none;display:block}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line)}
+.ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:none}
+.row .t{flex:1;min-width:0}.row .t b{display:block;font-size:14px}
+.row .t span{display:block;font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .a{font-weight:800;font-size:14px}
+.empty{padding:36px 18px;text-align:center;color:var(--mute);font-size:14px}
+.fab{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;display:flex;justify-content:center;gap:56px;padding:12px 0 calc(16px + env(safe-area-inset-bottom));pointer-events:none}
+.fab button{pointer-events:auto;width:64px;height:64px;border-radius:50%;font-size:34px;line-height:1;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.fab .m{background:var(--out)}.fab .p{background:var(--in)}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--surf);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;transform:translateY(100%);transition:transform .22s ease;z-index:21}
+#sheet.open{transform:none}
+.tt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.tt button{padding:10px;border-radius:12px;font-weight:600;background:var(--bg);color:var(--mute)}
+.tt button.on.o{background:var(--out);color:#fff}.tt button.on.i{background:var(--in);color:#fff}
+label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}
+input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+#nom{font-size:26px;font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button{padding:7px 11px;border-radius:16px;background:var(--bg);font-size:13px;border:1px solid transparent}
+.chips button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);font-weight:600}
+.act{display:flex;gap:10px;margin-top:18px}
+.act button{flex:1;padding:13px;border-radius:12px;font-weight:800}
+#save{background:var(--acc);color:#fff}#del{background:none;color:var(--out);border:1px solid var(--out);flex:.5}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;display:none;z-index:30;max-width:90%}
+button:disabled{opacity:.5}
+.top{display:flex;justify-content:space-between;align-items:center}
+#rf{font-size:20px;width:40px;height:34px;color:var(--acc)}#rf.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#rf.spin{animation:none;opacity:.5}}
+.lg{width:100%;text-align:left;background:none}
+.lg.sel{background:color-mix(in srgb,var(--acc) 14%,transparent)}.lg.dim{opacity:.4}
+.hh{display:flex;align-items:center;justify-content:space-between;padding-right:18px}
+.seg.sm button{padding:4px 9px;font-size:12px}
+#q{margin:6px 0 4px}
+.chipx{margin:6px 0;padding:6px 12px;border-radius:16px;background:color-mix(in srgb,var(--acc) 15%,transparent);font-size:13px;font-weight:600}
+.note{font-size:12px;color:var(--mute);margin:4px 0}
+.bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:4px}
+.bgr{padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.bgr .l{display:flex;justify-content:space-between;gap:8px}.bgr small{color:var(--mute);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><div class="seg"><button id="mDay">Hari</button><button id="mMon" class="on">Bulan</button><button id="mYr">Tahun</button></div><button id="rf" aria-label="Segarkan data">⟳</button></div>
+  <div class="nav"><button id="prev" aria-label="Sebelumnya">‹</button><b id="lbl"></b><button id="next" aria-label="Berikutnya">›</button></div>
+  <div class="sum"><div>Masuk<b id="sin"></b></div><div>Keluar<b id="sout"></b></div><div>Selisih<b id="sbal"></b></div></div>
+</header>
+<main>
+  <div class="donut"><svg id="dn" viewBox="0 0 42 42"></svg></div>
+  <div class="legend" id="lg"></div>
+    <div class="hh"><h3>Riwayat</h3><div class="seg sm"><button id="sDate" class="on">Tanggal</button><button id="sCat">Kategori</button><button id="sNom">Nominal</button></div></div>
+  <div class="hist"><input id="q" type="search" placeholder="Cari keterangan, kategori, nominal" autocomplete="off"><div id="fc"></div></div>
+  <div class="hist" id="hs"></div>
+</main>
+<div class="fab"><button class="m" id="addOut" aria-label="Tambah pengeluaran">−</button><button class="p" id="addIn" aria-label="Tambah pemasukan">+</button></div>
+<div id="ov"></div>
+<div id="sheet" role="dialog" aria-modal="true">
+  <div class="tt"><button id="tOut" class="o">Pengeluaran</button><button id="tIn" class="i">Pemasukan</button></div>
+  <label for="nom">Nominal (Rp)</label><input id="nom" inputmode="numeric" placeholder="0" autocomplete="off">
+  <label>Kategori</label><div class="chips" id="chips"></div>
+  <label for="ket">Keterangan</label><input id="ket" maxlength="200" autocomplete="off">
+  <label for="wkt">Waktu</label><input id="wkt" type="datetime-local">
+  <div class="act"><button id="del">Hapus</button><button id="save">Simpan</button></div>
+</div>
+<div id="toast"></div>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbypGhv5sbZBj0CYGSL11zoUzh68J2O0A9Aajbi37xUStW2RbXEtuZ7yU_TbX5AmXvBGEQ/exec";
+const CATS = {"Kitchen":["🥬","#7cb342"],"Daily Meals":["🍱","#fb8c00"],"Self Reward":["🍰","#ec407a"],"Transport":["🛵","#039be5"],"Health":["💊","#e53935"],"Invest":["📈","#00897b"],"Papan":["🏠","#8d6e63"],"Bills":["🧾","#8e24aa"],"Monthly Expenses":["📅","#3949ab"],"Other":["📦","#90a4ae"]};
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const nowStr = () => { const n = new Date(); return ymd(n) + " " + pad(n.getHours()) + ":" + pad(n.getMinutes()) + ":" + pad(n.getSeconds()); };
+const rp = n => "Rp" + Math.round(n).toLocaleString("id-ID");
+const short = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "jt" : n >= 1e3 ? Math.round(n / 1e3) + "rb" : String(Math.round(n));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const MON = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const DAYN = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+const catOf = k => CATS[k] || CATS.Other;
+
+let key = "", mode = "month", cur = new Date(), all = [], budgets = [], fcat = null, sortM = "date", nomDir = "desc", open = new Set(), q = "", lastSync = 0;
+let form = {type: "Out", cat: "Daily Meals", uid: null};
+try {
+  key = localStorage.getItem("fk") || "";
+  const c = JSON.parse(localStorage.getItem("fc") || "null");
+  if (c) { all = c.all || []; budgets = c.budgets || []; }
+} catch (e) {}
+cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate());
+
+function toast(m) { const t = $("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 3200); }
+function ensureKey() {
+  if (key) return true;
+  const k = prompt("Masukkan API secret dashboard:");
+  if (!k) return false;
+  key = k.trim();
+  try { localStorage.setItem("fk", key); } catch (e) {}
+  return true;
+}
+async function call(p) {
+  if (!ensureKey()) throw new Error("API secret belum diisi");
+  const r = await fetch(API, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify(Object.assign({key}, p))});
+  const j = await r.json();
+  if (!j.ok) {
+    if (j.error === "Unauthorized") { key = ""; try { localStorage.removeItem("fk"); } catch (e) {} throw new Error("API secret salah, muat ulang halaman"); }
+    throw new Error(j.error);
+  }
+  return j.data;
+}
+// Ambil SEMUA data sekali, lalu semua filter dikerjakan di HP (instan).
+async function refresh() {
+  $("rf").classList.add("spin");
+  try {
+    const r = await Promise.all([call({action: "list"}), call({action: "budgets"})]);
+    all = r[0]; budgets = r[1]; lastSync = Date.now();
+    try { localStorage.setItem("fc", JSON.stringify({all, budgets})); } catch (e) {}
+    render();
+  } catch (e) { toast(e.message); }
+  $("rf").classList.remove("spin");
+}
+function range() {
+  const y = cur.getFullYear();
+  if (mode === "day") { const s = ymd(cur); return [s, s]; }
+  if (mode === "year") return [y + "-01-01", y + "-12-31"];
+  return [ymd(new Date(y, cur.getMonth(), 1)), ymd(new Date(y, cur.getMonth() + 1, 0))];
+}
+function label() {
+  if (mode === "day") return DAYN[cur.getDay()] + ", " + cur.getDate() + " " + MON[cur.getMonth()] + " " + cur.getFullYear();
+  return mode === "year" ? String(cur.getFullYear()) : MON[cur.getMonth()] + " " + cur.getFullYear();
+}
+function rowHtml(r, full) {
+  const c = catOf(r.kategori), isIn = r.tipe === "In";
+  return `<button class="row" data-uid="${esc(r.uid)}"><span class="ico" style="background:${c[1]}26">${c[0]}</span><span class="t"><b>${esc(r.kategori)}</b><span>${esc(r.keterangan || "-")} · ${r.moment.substring(full ? 0 : 11, 16)}</span></span><span class="a" style="color:var(${isIn ? "--in" : "--out"})">${isIn ? "+" : "-"}${rp(r.nominal)}</span></button>`;
+}
+function ring(p) {
+  const inf = p === Infinity, col = inf || p > 100 ? "var(--out)" : p >= 80 ? "#f5a524" : "var(--in)", d = inf ? 100 : Math.min(p, 100);
+  return `<svg class="rg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="18" cy="18" r="15.9155" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${d} ${100 - d}" transform="rotate(-90 18 18)"/><text x="18" y="21.5" text-anchor="middle" font-size="${!inf && p >= 100 ? 9 : 10}" font-weight="800" fill="${col}">${inf ? "!" : Math.round(p)}</text></svg>`;
+}
+function render() {
+  $("lbl").textContent = label();
+  const [f, t] = range();
+  const per = all.filter(r => { const d = r.moment.substring(0, 10); return d >= f && d <= t; });
+  const cin = per.filter(r => r.tipe === "In").reduce((s, r) => s + r.nominal, 0);
+  const outs = per.filter(r => r.tipe !== "In");
+  const cout = outs.reduce((s, r) => s + r.nominal, 0);
+  $("sin").textContent = rp(cin); $("sout").textContent = rp(cout);
+  $("sbal").textContent = (cin - cout < 0 ? "-" : "") + rp(Math.abs(cin - cout));
+
+  const by = {};
+  outs.forEach(r => by[r.kategori] = (by[r.kategori] || 0) + r.nominal);
+  const ent = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  let svg = '<circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--line)" stroke-width="5"/>', off = 25;
+  ent.forEach(([k, v]) => {
+    const p = v / cout * 100;
+    svg += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${catOf(k)[1]}" stroke-width="5" stroke-dasharray="${p} ${100 - p}" stroke-dashoffset="${off}"/>`;
+    off -= p;
+  });
+  svg += `<text x="21" y="20" text-anchor="middle" font-size="2.6" fill="var(--mute)">Keluar</text><text x="21" y="25" text-anchor="middle" font-size="4.6" font-weight="800" fill="var(--ink)">${short(cout)}</text>`;
+  $("dn").innerHTML = svg;
+  const bm = {}; budgets.forEach(b => bm[b.kategori] = b.budget);
+  const isM = mode === "month" && budgets.length;
+  const rg = (k, v) => !isM ? "" : (k in bm ? ring(bm[k] > 0 ? v / bm[k] * 100 : Infinity) : '<span class="rg"></span>');
+  let lgh = ent.map(([k, v]) => `<button class="lg${fcat === k ? " sel" : fcat ? " dim" : ""}" data-k="${esc(k)}"><span class="dot" style="background:${catOf(k)[1]}"></span><span class="n">${esc(k)}</span><span class="p">${Math.round(v / cout * 100)}%</span><span class="v">${rp(v)}</span>${rg(k, v)}</button>`).join("");
+  if (isM) { const tb = budgets.reduce((a, b) => a + b.budget, 0); lgh += `<div class="lg tot"><span class="n"><b>Total vs anggaran</b></span><span class="v">${rp(cout)} / ${rp(tb)}</span>${tb > 0 ? ring(cout / tb * 100) : '<span class="rg"></span>'}</div>`; }
+  $("lg").innerHTML = lgh;
+
+  // Riwayat: pencarian mencari di semua periode; filter kategori berlaku di keduanya
+  let list = q ? all.filter(r => (r.keterangan + " " + r.kategori + " " + r.nominal).toLowerCase().includes(q)) : per;
+  if (fcat) list = list.filter(r => r.kategori === fcat);
+  $("fc").innerHTML = (fcat ? `<button class="chipx" id="cf">✕ Kategori: ${esc(fcat)}</button>` : "") + (q ? '<div class="note">Hasil pencarian dari semua periode</div>' : "");
+  if (!list.length) { $("hs").innerHTML = '<div class="empty">' + (q || fcat ? "Tidak ada transaksi yang cocok." : "Belum ada transaksi di periode ini. Tekan − atau + untuk mencatat.") + "</div>"; return; }
+  const byCat = sortM === "cat", sum = a => a.reduce((s, x) => s + (x.tipe === "In" ? x.nominal : -x.nominal), 0);
+  if (sortM === "nom") {
+    $("hs").innerHTML = list.slice().sort((a, b) => nomDir === "desc" ? b.nominal - a.nominal : a.nominal - b.nominal).map(r => rowHtml(r, true)).join("");
+    return;
+  }
+  const groups = new Map();
+  list.forEach(r => { const k = byCat ? r.kategori : r.moment.substring(0, 10); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); });
+  const ents = [...groups.entries()];
+  if (byCat) ents.sort((a, b) => Math.abs(sum(b[1])) - Math.abs(sum(a[1])));
+  const expandAll = byCat && ents.length === 1;
+  $("hs").innerHTML = ents.map(([k, rs]) => {
+    const tot = sum(rs), tt = `<span>${tot < 0 ? "-" : ""}${rp(Math.abs(tot))}</span>`;
+    if (byCat) { const o = expandAll || open.has(k); return `<button class="day cg" data-g="${esc(k)}"><span>${o ? "▾" : "▸"} ${catOf(k)[0]} ${esc(k)} · ${rs.length}</span>${tt}</button>` + (o ? rs.map(r => rowHtml(r, true)).join("") : ""); }
+    const dt = new Date(k + "T00:00:00");
+    return `<div class="day"><span>${DAYN[dt.getDay()]}, ${dt.getDate()} ${MON[dt.getMonth()]}${mode === "year" || q ? " " + dt.getFullYear() : ""}</span>${tt}</div>` + rs.map(r => rowHtml(r, false)).join("");
+  }).join("");
+}
+function setType(t) { form.type = t; $("tOut").classList.toggle("on", t === "Out"); $("tIn").classList.toggle("on", t === "In"); }
+function drawChips() {
+  $("chips").innerHTML = Object.keys(CATS).map(k => `<button data-c="${esc(k)}" class="${k === form.cat ? "on" : ""}">${CATS[k][0]} ${esc(k)}</button>`).join("");
+}
+function openSheet(r, type) {
+  form.uid = r ? r.uid : null;
+  setType(r ? (r.tipe === "In" ? "In" : "Out") : type);
+  form.cat = r ? r.kategori : (type === "In" ? "Other" : "Daily Meals");
+  drawChips();
+  $("nom").value = r ? Number(r.nominal).toLocaleString("id-ID") : "";
+  $("ket").value = r ? r.keterangan : "";
+  const n = new Date();
+  $("wkt").value = r ? r.moment.substring(0, 16).replace(" ", "T") : ymd(n) + "T" + pad(n.getHours()) + ":" + pad(n.getMinutes());
+  $("del").style.display = r ? "" : "none";
+  $("ov").style.display = "block";
+  requestAnimationFrame(() => $("sheet").classList.add("open"));
+  if (!r) setTimeout(() => $("nom").focus(), 250);
+}
+function closeSheet() { $("sheet").classList.remove("open"); $("ov").style.display = "none"; }
+// Optimistic: tampilan langsung berubah, sinkron ke sheet jalan di belakang.
+async function save() {
+  const nominal = Number(String($("nom").value).replace(/[^\d]/g, ""));
+  if (!(nominal > 0)) { toast("Isi nominal lebih dari 0"); return; }
+  const w = $("wkt").value.replace("T", " ");
+  const moment = w ? w.substring(0, 16) + ":00" : nowStr();
+  const p = {tipe: form.type, nominal, kategori: form.cat, keterangan: $("ket").value.trim(), waktu: $("wkt").value};
+  const uid = form.uid, isEdit = !!uid;
+  closeSheet();
+  if (isEdit) { const r = all.find(x => x.uid === uid); if (r) Object.assign(r, {tipe: p.tipe, nominal, kategori: p.kategori, keterangan: p.keterangan, moment}); }
+  else all.push({uid: "tmp" + Date.now(), moment, tipe: p.tipe, nominal, kategori: p.kategori, keterangan: p.keterangan, entry: moment});
+  all.sort((a, b) => a.moment < b.moment ? 1 : -1);
+  render();
+  try { await call(isEdit ? Object.assign({action: "edit", uid}, p) : Object.assign({action: "add"}, p)); toast(isEdit ? "Perubahan disimpan" : "Transaksi disimpan"); }
+  catch (e) { toast(e.message); }
+  refresh();
+}
+async function del() {
+  if (!confirm("Hapus transaksi ini?")) return;
+  const uid = form.uid;
+  closeSheet();
+  all = all.filter(r => r.uid !== uid); render();
+  try { await call({action: "delete", uid}); toast("Transaksi dihapus"); }
+  catch (e) { toast(e.message); }
+  refresh();
+}
+function shift(d) {
+  if (mode === "day") cur.setDate(cur.getDate() + d);
+  else if (mode === "year") cur = new Date(cur.getFullYear() + d, cur.getMonth(), 1);
+  else cur = new Date(cur.getFullYear(), cur.getMonth() + d, 1);
+  render();
+}
+function setMode(m) {
+  mode = m;
+  ["Day", "Mon", "Yr"].forEach(x => $("m" + x).classList.remove("on"));
+  $(m === "day" ? "mDay" : m === "month" ? "mMon" : "mYr").classList.add("on");
+  if (m !== "day") cur = new Date(cur.getFullYear(), cur.getMonth(), 1);
+  render();
+}
+function setSort(s) {
+  if (s === "nom") nomDir = sortM === "nom" && nomDir === "desc" ? "asc" : "desc";
+  if (s === "cat" && sortM !== "cat") open.clear();
+  sortM = s;
+  $("sDate").classList.toggle("on", s === "date"); $("sCat").classList.toggle("on", s === "cat"); $("sNom").classList.toggle("on", s === "nom");
+  $("sNom").textContent = "Nominal" + (s === "nom" ? (nomDir === "desc" ? " ↓" : " ↑") : "");
+  render();
+}
+$("prev").onclick = () => shift(-1); $("next").onclick = () => shift(1);
+$("mDay").onclick = () => setMode("day"); $("mMon").onclick = () => setMode("month"); $("mYr").onclick = () => setMode("year");
+$("sNom").onclick = () => setSort("nom"); $("sDate").onclick = () => setSort("date"); $("sCat").onclick = () => setSort("cat");
+$("rf").onclick = refresh;
+$("addOut").onclick = () => openSheet(null, "Out"); $("addIn").onclick = () => openSheet(null, "In");
+$("tOut").onclick = () => setType("Out"); $("tIn").onclick = () => setType("In");
+$("ov").onclick = closeSheet; $("save").onclick = save; $("del").onclick = del;
+$("chips").onclick = e => { const b = e.target.closest("button"); if (b) { form.cat = b.dataset.c; drawChips(); } };
+$("lg").onclick = e => { const b = e.target.closest(".lg[data-k]"); if (b) { fcat = fcat === b.dataset.k ? null : b.dataset.k; render(); } };
+$("fc").onclick = e => { if (e.target.closest("#cf")) { fcat = null; render(); } };
+$("q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
+$("hs").onclick = e => {
+  const g = e.target.closest(".cg");
+  if (g) { const k = g.dataset.g; if (open.has(k)) open.delete(k); else open.add(k); render(); return; }
+  const b = e.target.closest(".row"); if (!b) return;
+  if (b.dataset.uid.startsWith("tmp")) { toast("Masih menyimpan, tunggu sebentar"); return; }
+  openSheet(all.find(r => r.uid === b.dataset.uid));
+};
+$("nom").oninput = e => { const v = e.target.value.replace(/[^\d]/g, ""); e.target.value = v ? Number(v).toLocaleString("id-ID") : ""; };
+document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastSync > 60000) refresh(); });
+render();
+refresh();
+</script>
+</body>
+</html>
