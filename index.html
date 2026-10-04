@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Seabasst Finance</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -59,6 +60,9 @@ input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid 
 #save{background:var(--acc);color:#fff}#del{background:none;color:var(--out);border:1px solid var(--out);flex:.5}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;display:none;z-index:30;max-width:90%}
 button:disabled{opacity:.5}
+#ks{display:none;position:fixed;inset:0;background:var(--bg);z-index:40;padding:90px 24px}
+#ks h2{font-size:20px;margin-bottom:6px}#ks p{font-size:13px;color:var(--mute);margin-bottom:14px}
+.pri{width:100%;margin-top:14px;padding:13px;border-radius:12px;font-weight:800;background:var(--acc);color:#fff}
 .top{display:flex;justify-content:space-between;align-items:center}
 #rf{font-size:20px;width:40px;height:34px;color:var(--acc)}#rf.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){#rf.spin{animation:none;opacity:.5}}
@@ -96,6 +100,7 @@ button:disabled{opacity:.5}
   <label for="wkt">Waktu</label><input id="wkt" type="datetime-local">
   <div class="act"><button id="del">Hapus</button><button id="save">Simpan</button></div>
 </div>
+<div id="ks"><h2>Masukkan API secret</h2><p>Hanya perlu sekali di perangkat ini.</p><input id="kin" type="password" autocomplete="off" placeholder="API secret"><button class="pri" id="kok">Simpan</button></div>
 <div id="toast"></div>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbypGhv5sbZBj0CYGSL11zoUzh68J2O0A9Aajbi37xUStW2RbXEtuZ7yU_TbX5AmXvBGEQ/exec";
@@ -121,16 +126,24 @@ try {
 cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate());
 
 function toast(m) { const t = $("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 3200); }
+let kp = null;
+function askKey() {
+  return new Promise(res => {
+    $("ks").style.display = "block"; $("kin").focus();
+    $("kok").onclick = () => {
+      const k = $("kin").value.trim(); if (!k) return;
+      key = k; try { localStorage.setItem("fk", key); } catch (e) {}
+      $("ks").style.display = "none"; res(true);
+    };
+  });
+}
 function ensureKey() {
-  if (key) return true;
-  const k = prompt("Masukkan API secret dashboard:");
-  if (!k) return false;
-  key = k.trim();
-  try { localStorage.setItem("fk", key); } catch (e) {}
-  return true;
+  if (key) return Promise.resolve(true);
+  if (!kp) kp = askKey().then(v => { kp = null; return v; });
+  return kp;
 }
 async function call(p) {
-  if (!ensureKey()) throw new Error("API secret belum diisi");
+  if (!(await ensureKey())) throw new Error("API secret belum diisi");
   const r = await fetch(API, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify(Object.assign({key}, p))});
   const j = await r.json();
   if (!j.ok) {
@@ -255,7 +268,8 @@ async function save() {
   refresh();
 }
 async function del() {
-  if (!confirm("Hapus transaksi ini?")) return;
+  if (!del.armed) { del.armed = true; $("del").textContent = "Tap lagi untuk hapus"; setTimeout(() => { del.armed = false; $("del").textContent = "Hapus"; }, 3000); return; }
+  del.armed = false; $("del").textContent = "Hapus";
   const uid = form.uid;
   closeSheet();
   all = all.filter(r => r.uid !== uid); render();
@@ -304,6 +318,7 @@ $("hs").onclick = e => {
 };
 $("nom").oninput = e => { const v = e.target.value.replace(/[^\d]/g, ""); e.target.value = v ? Number(v).toLocaleString("id-ID") : ""; };
 document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastSync > 60000) refresh(); });
+try { if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } } catch (e) {}
 render();
 refresh();
 </script>
