@@ -51,7 +51,12 @@ h3{font-size:13px;font-weight:600;color:var(--mute);padding:20px 18px 4px}
 .tt button.on.o{background:var(--out);color:#fff}.tt button.on.i{background:var(--in);color:#fff}
 label{display:block;font-size:12px;color:var(--mute);margin:12px 0 4px}
 input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
-#nom{font-size:26px;font-weight:800}
+.nomd{font-size:28px;font-weight:800;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);min-height:56px;word-break:break-all}
+#nres{min-height:18px;margin:4px 0 0;text-align:right}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}.kp button{height:44px;border-radius:10px;background:var(--bg);font-size:18px;font-weight:700}.kp .op{color:var(--acc)}.kp .eq{background:var(--acc);color:#fff}.kp .w2{grid-column:span 2}
+.seg.f{display:flex;margin:6px 0}.seg.f button{flex:1;padding:6px 2px}#ab .seg{background:var(--surf)}
+#ci{min-height:46px;padding:8px 0;font-size:14px}#ci b{display:block;font-size:12px;color:var(--mute);font-weight:600}svg.cv{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.st div{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.st span{display:block;font-size:11px;color:var(--mute)}.st b{font-size:15px}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chips button{padding:7px 11px;border-radius:16px;background:var(--bg);font-size:13px;border:1px solid transparent}
 .chips button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);font-weight:600}
@@ -60,14 +65,15 @@ input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid 
 #save{background:var(--acc);color:#fff}#del{background:none;color:var(--out);border:1px solid var(--out);flex:.5}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;display:none;z-index:30;max-width:90%}
 button:disabled{opacity:.5}
-#lbl{font-size:17px;font-weight:800;padding:6px 10px;border-radius:10px}
+.nav #lbl{font-size:17px;font-weight:800;width:auto;height:auto;padding:6px 12px;border-radius:10px;color:var(--ink)}
+html,body{overscroll-behavior:none}body{touch-action:pan-y}
 #anb{font-size:18px;width:40px;height:34px}
 .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.ph button{font-size:26px;width:44px;height:36px;color:var(--acc)}.ph b{font-size:17px}
 .pg{display:grid;gap:6px}.pg.c3{grid-template-columns:repeat(3,1fr)}.pg.c4{grid-template-columns:repeat(4,1fr)}.pg.c7{grid-template-columns:repeat(7,1fr)}
 .pb{position:relative;padding:11px 0;border-radius:10px;background:var(--bg);font-weight:600;font-size:14px}.pb.on{background:var(--acc);color:#fff}
 .pb.has::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--acc)}.pb.on.has::after{background:#fff}
 .wd{font-size:11px;color:var(--mute);text-align:center;padding:4px 0}
-main.ia{animation:inL .22s ease}main.ib{animation:inR .22s ease}@keyframes inL{from{transform:translateX(28px);opacity:.3}}@keyframes inR{from{transform:translateX(-28px);opacity:.3}}
+main.ia,main.ib{animation:fd .18s ease}@keyframes fd{from{opacity:.35}}
 @media (prefers-reduced-motion:reduce){main.ia,main.ib{animation:none}}
 #an{display:none;position:fixed;inset:0;background:var(--bg);z-index:25;overflow:auto;max-width:480px;margin:0 auto;padding:env(safe-area-inset-top) 0 40px}
 .ah{display:flex;justify-content:space-between;align-items:center;padding:14px 18px}.ah b{font-size:18px;font-weight:800}.ah button{font-size:20px;width:40px;height:36px}
@@ -106,7 +112,7 @@ main.ia{animation:inL .22s ease}main.ib{animation:inR .22s ease}@keyframes inL{f
 <div id="ov"></div>
 <div id="sheet" role="dialog" aria-modal="true">
   <div class="tt"><button id="tOut" class="o">Pengeluaran</button><button id="tIn" class="i">Pemasukan</button></div>
-  <label for="nom">Nominal (Rp)</label><input id="nom" inputmode="numeric" placeholder="0" autocomplete="off">
+  <label>Nominal (Rp)</label><div id="nom" class="nomd">0</div><div id="nres" class="note"></div><div class="kp" id="kp"></div>
   <label>Kategori</label><div class="chips" id="chips"></div>
   <label for="ket">Keterangan</label><input id="ket" maxlength="200" autocomplete="off">
   <label for="wkt">Waktu</label><input id="wkt" type="datetime-local">
@@ -114,7 +120,6 @@ main.ia{animation:inL .22s ease}main.ib{animation:inR .22s ease}@keyframes inL{f
 </div>
 <div id="pk"><div class="ph"><button data-pn="-1" aria-label="Sebelumnya">‹</button><b id="pt"></b><button data-pn="1" aria-label="Berikutnya">›</button></div><div id="pg" class="pg"></div><button class="pri" id="ptd"></button></div>
 <div id="an"><div class="ah"><b>Analitik</b><button id="ax" aria-label="Tutup">✕</button></div>
-<div class="seg sm" id="ar" style="margin:0 18px 4px"><button data-r="3">3B</button><button data-r="6" class="on">6B</button><button data-r="12">12B</button><button data-r="0">Semua</button></div>
 <div class="hist" id="ab"></div></div>
 <div id="ks"><h2>Masukkan API secret</h2><p>Hanya perlu sekali di perangkat ini.</p><input id="kin" type="password" autocomplete="off" placeholder="API secret"><button class="pri" id="kok">Simpan</button></div>
 <div id="toast"></div>
@@ -198,7 +203,7 @@ function ring(p) {
   return `<svg class="rg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="18" cy="18" r="15.9155" fill="none" stroke="${col}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${d} ${100 - d}" transform="rotate(-90 18 18)"/><text x="18" y="21.5" text-anchor="middle" font-size="${!inf && p >= 100 ? 9 : 10}" font-weight="800" fill="${col}">${inf ? "!" : Math.round(p)}</text></svg>`;
 }
 function render() {
-  $("lbl").textContent = label() + " ▾";
+  $("lbl").textContent = label();
   const [f, t] = range();
   const per = all.filter(r => { const d = r.moment.substring(0, 10); return d >= f && d <= t; });
   const cin = per.filter(r => r.tipe === "In").reduce((s, r) => s + r.nominal, 0);
@@ -256,19 +261,18 @@ function openSheet(r, type) {
   setType(r ? (r.tipe === "In" ? "In" : "Out") : type);
   form.cat = r ? r.kategori : (type === "In" ? "Other" : "Daily Meals");
   drawChips();
-  $("nom").value = r ? Number(r.nominal).toLocaleString("id-ID") : "";
+  ex = r ? String(Math.round(r.nominal)) : ""; drawNom();
   $("ket").value = r ? r.keterangan : "";
   const n = new Date();
-  $("wkt").value = r ? r.moment.substring(0, 16).replace(" ", "T") : ymd(n) + "T" + pad(n.getHours()) + ":" + pad(n.getMinutes());
+  $("wkt").value = r ? r.moment.substring(0, 16).replace(" ", "T") : ymd(mode === "day" ? cur : n) + "T" + pad(n.getHours()) + ":" + pad(n.getMinutes());
   $("del").style.display = r ? "" : "none";
   $("ov").style.display = "block";
   requestAnimationFrame(() => $("sheet").classList.add("open"));
-  if (!r) setTimeout(() => $("nom").focus(), 250);
 }
 function closeSheet() { $("sheet").classList.remove("open"); $("pk").classList.remove("open"); $("ov").style.display = "none"; }
 // Optimistic: tampilan langsung berubah, sinkron ke sheet jalan di belakang.
 async function save() {
-  const nominal = Number(String($("nom").value).replace(/[^\d]/g, ""));
+  const nominal = calc();
   if (!(nominal > 0)) { toast("Isi nominal lebih dari 0"); return; }
   const w = $("wkt").value.replace("T", " ");
   const moment = w ? w.substring(0, 16) + ":00" : nowStr();
@@ -333,7 +337,6 @@ $("hs").onclick = e => {
   if (b.dataset.uid.startsWith("tmp")) { toast("Masih menyimpan, tunggu sebentar"); return; }
   openSheet(all.find(r => r.uid === b.dataset.uid));
 };
-$("nom").oninput = e => { const v = e.target.value.replace(/[^\d]/g, ""); e.target.value = v ? Number(v).toLocaleString("id-ID") : ""; };
 document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastSync > 60000) refresh(); });
 
 // ===== Picker periode =====
@@ -376,54 +379,122 @@ document.addEventListener("touchend", e => {
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) shift(dx < 0 ? 1 : -1);
 }, {passive: true});
 
+// ===== Keypad kalkulator =====
+let ex = "";
+function calc() {
+  const t = ex.replace(/[+\-*/]+$/, "");
+  if (!/^\d+([+\-*/]\d+)*$/.test(t)) return NaN;
+  try { const v = Function('"use strict";return (' + t + ")")(); return isFinite(v) ? Math.round(v) : NaN; } catch (e) { return NaN; }
+}
+function drawNom() {
+  $("nom").textContent = ex.replace(/\d+/g, m => Number(m).toLocaleString("id-ID")).replace(/\*/g, "×").replace(/\//g, "÷").replace(/-/g, "−") || "0";
+  const v = calc(); $("nres").textContent = /[+\-*/]/.test(ex) && isFinite(v) ? "= " + (v < 0 ? "-" : "") + rp(Math.abs(v)) : "";
+}
+const KL = {B: "⌫", "/": "÷", "*": "×", "-": "−"};
+$("kp").innerHTML = [..."CB/*789-456+123="].map(k => `<button data-k="${k}" class="${"CB/*-+".includes(k) ? "op" : k === "=" ? "eq" : ""}">${KL[k] || k}</button>`).join("") + '<button data-k="0" class="w2">0</button><button data-k="000" class="w2">000</button>';
+$("kp").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return; const k = b.dataset.k;
+  if (k === "C") ex = "";
+  else if (k === "B") ex = ex.slice(0, -1);
+  else if (k === "=") { const v = calc(); if (v > 0) ex = String(v); }
+  else if ("+-*/".includes(k)) { if (!ex) return; ex = /[+\-*/]$/.test(ex) ? ex.slice(0, -1) + k : ex + k; }
+  else { const last = ex.match(/\d*$/)[0]; if (k === "000" && (!last || last === "0")) return; if (last === "0") ex = ex.slice(0, -1); if (last.length + k.length > 12) return; ex += k; }
+  drawNom();
+};
+
+// ===== Cegah layar ikut bergeser saat swipe horizontal =====
+document.addEventListener("touchmove", e => {
+  if ($("ov").style.display === "block" || $("an").style.display === "block" || e.target.closest("input")) return;
+  const t = e.touches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+  if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.5 && e.cancelable) e.preventDefault();
+}, {passive: false});
+
 // ===== Analitik =====
-let an = {r: 6, sel: null, cat: null, day: null};
-function renderAn() {
-  const outs = all.filter(r => r.tipe !== "In"), now = new Date(), mk = d => d.getFullYear() + "-" + pad(d.getMonth() + 1);
-  let n = an.r;
-  if (!n) { const f = outs.reduce((m, r) => r.moment < m ? r.moment : m, "9999"); n = f === "9999" ? 1 : (now.getFullYear() - +f.substring(0, 4)) * 12 + now.getMonth() - (+f.substring(5, 7) - 1) + 1; }
-  const keys = []; for (let i = n - 1; i >= 0; i--) keys.push(mk(new Date(now.getFullYear(), now.getMonth() - i, 1)));
-  if (!keys.includes(an.sel)) { an.sel = keys[keys.length - 1]; an.day = null; }
-  const cats = {}; keys.forEach(k => cats[k] = {});
-  outs.forEach(r => { const k = r.moment.substring(0, 7); if (cats[k]) cats[k][r.kategori] = (cats[k][r.kategori] || 0) + r.nominal; });
-  const sumC = o => Object.values(o).reduce((a, b) => a + b, 0), val = k => an.cat ? (cats[k][an.cat] || 0) : sumC(cats[k]);
-  const bl = an.cat ? ((budgets.find(b => b.kategori === an.cat) || {}).budget || 0) : budgets.reduce((a, b) => a + b.budget, 0);
-  const vs = keys.map(val), max = Math.max(...vs, bl, 1) * 1.1;
-  const W = 340, H = 180, L = 34, B = 20, T = 14, bw = (W - L) / keys.length, Y = v => H - B - v / max * (H - B - T);
-  let g = "";
-  [0, .5, 1].forEach(f => { const y = Y(max * f); g += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L - 4}" y="${y + 3}" text-anchor="end" font-size="8" fill="var(--mute)">${short(max * f)}</text>`; });
-  keys.forEach((k, i) => {
-    const x = L + i * bw + bw * .19, w = bw * .62, s = k === an.sel; let y0 = H - B;
-    (an.cat ? [an.cat] : Object.keys(CATS).filter(c => cats[k][c])).forEach(c => { const h = (cats[k][c] || 0) / max * (H - B - T); y0 -= h; g += `<rect x="${x}" y="${y0}" width="${w}" height="${h}" fill="${catOf(c)[1]}" opacity="${s ? 1 : .45}"/>`; });
-    if (s && vs[i] > 0) g += `<text x="${x + w / 2}" y="${y0 - 3}" text-anchor="middle" font-size="8" font-weight="800" fill="var(--ink)">${short(vs[i])}</text>`;
-    g += `<text x="${L + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="8" fill="${s ? "var(--ink)" : "var(--mute)"}" font-weight="${s ? 800 : 400}">${MON[+k.substring(5) - 1].substring(0, 3)}</text><rect data-k="${k}" x="${L + i * bw}" y="0" width="${bw}" height="${H}" fill="transparent"/>`;
-  });
-  if (bl > 0) g += `<line x1="${L}" x2="${W}" y1="${Y(bl)}" y2="${Y(bl)}" stroke="var(--out)" stroke-dasharray="4 3"/><text x="${W}" y="${Y(bl) - 3}" text-anchor="end" font-size="8" fill="var(--out)">Budget</text>`;
-  const tot = vs.reduce((a, b) => a + b, 0), mi = vs.indexOf(Math.max(...vs)), si = keys.indexOf(an.sel);
-  const prev = si > 0 ? vs[si - 1] : 0, dl = prev > 0 ? Math.round((vs[si] - prev) / prev * 100) : null;
-  const mc = Object.entries(cats[an.sel]).sort((a, b) => b[1] - a[1]), mt = sumC(cats[an.sel]);
-  const [sy, sm] = an.sel.split("-").map(Number), nd = new Date(sy, sm, 0).getDate(), dv = Array(nd + 1).fill(0);
-  outs.forEach(r => { if (r.moment.startsWith(an.sel) && (!an.cat || r.kategori === an.cat)) dv[+r.moment.substring(8, 10)] += r.nominal; });
-  const dmax = Math.max(...dv, 1) * 1.1, dbw = (W - 10) / nd; let d2 = "";
-  for (let d = 1; d <= nd; d++) {
-    const h = dv[d] / dmax * 90, x = 5 + (d - 1) * dbw;
-    d2 += `<rect x="${x + 1}" y="${100 - h}" width="${dbw - 2}" height="${h}" rx="1.5" fill="${d === an.day ? "var(--acc)" : "var(--out)"}" opacity="${an.day && d !== an.day ? .4 : .85}"/><rect data-d="${d}" x="${x}" y="0" width="${dbw}" height="112" fill="transparent"/>` + (d === 1 || d % 5 === 0 ? `<text x="${x + dbw / 2}" y="110" text-anchor="middle" font-size="7" fill="var(--mute)">${d}</text>` : "");
+const WIN = {day: [14, 30, 90], week: [8, 12, 26], month: [6, 12, 24], year: [3, 5, 10]};
+const TFN = {day: "Harian", week: "Mingguan", month: "Bulanan", year: "Tahunan"}, UNIT = {day: "hari", week: "pekan", month: "bln", year: "thn"};
+const TYN = {Out: "Keluar", In: "Masuk", Net: "Selisih"};
+let an = {tf: "month", ty: "Out", w: 1, cats: new Set(), sel: null, px: [], py: [], vs: [], pr: []};
+const fv = v => (v < 0 ? "-" : "") + rp(Math.abs(v));
+const good = up => an.ty === "Out" ? !up : up;
+function periods(tf, n) {
+  const out = [], t = new Date(); t.setHours(0, 0, 0, 0);
+  for (let i = n - 1; i >= 0; i--) {
+    let d;
+    if (tf === "day") { d = new Date(t); d.setDate(t.getDate() - i); out.push({k: ymd(d), l: DAYN[d.getDay()] + ", " + d.getDate() + " " + MON[d.getMonth()].substring(0, 3) + " " + d.getFullYear(), x: d.getDate() + "/" + (d.getMonth() + 1)}); }
+    else if (tf === "week") { d = new Date(t); d.setDate(t.getDate() - ((t.getDay() + 6) % 7) - 7 * i); const e = new Date(d); e.setDate(d.getDate() + 6); out.push({k: ymd(d), l: d.getDate() + " " + MON[d.getMonth()].substring(0, 3) + " – " + e.getDate() + " " + MON[e.getMonth()].substring(0, 3), x: d.getDate() + "/" + (d.getMonth() + 1)}); }
+    else if (tf === "month") { d = new Date(t.getFullYear(), t.getMonth() - i, 1); out.push({k: ymd(d).substring(0, 7), l: MON[d.getMonth()] + " " + d.getFullYear(), x: MON[d.getMonth()].substring(0, 3)}); }
+    else { const y = t.getFullYear() - i; out.push({k: String(y), l: String(y), x: String(y)}); }
   }
-  $("ab").innerHTML = `<div class="sum"><div>Rata-rata/bulan<b>${rp(tot / keys.length)}</b></div><div>Tertinggi<b>${MON[+keys[mi].substring(5) - 1].substring(0, 3)} · ${short(vs[mi])}</b></div><div>vs bulan lalu<b style="color:var(${dl === null ? "--mute" : dl > 0 ? "--out" : "--in"})">${dl === null ? "-" : (dl > 0 ? "+" : "") + dl + "%"}</b></div></div>` +
-    `<h3>Tren pengeluaran${an.cat ? " · " + esc(an.cat) : ""}</h3><svg viewBox="0 0 ${W} ${H}">${g}</svg>` +
-    `<h3>${MON[sm - 1]} ${sy} · ${rp(vs[si])}</h3><svg viewBox="0 0 ${W} 112">${d2}</svg><div class="note" style="text-align:center">${an.day ? an.day + " " + MON[sm - 1] + ": " + rp(dv[an.day]) : "Tap batang harian untuk detail"}</div>` +
-    `<h3>Kategori bulan ini</h3><div class="note">Tap kategori untuk memfilter tren</div><div class="legend" style="padding:0">` +
-    mc.map(([c, v]) => `<button class="lg${an.cat === c ? " sel" : an.cat ? " dim" : ""}" data-c="${esc(c)}"><span class="dot" style="background:${catOf(c)[1]}"></span><span class="n">${esc(c)}</span><span class="p">${Math.round(v / mt * 100)}%</span><span class="v">${rp(v)}</span></button>`).join("") + "</div>";
+  return out;
+}
+function bkey(tf, m) {
+  const d = m.substring(0, 10);
+  if (tf === "day") return d; if (tf === "month") return d.substring(0, 7); if (tf === "year") return d.substring(0, 4);
+  const t = new Date(d + "T00:00:00"); t.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return ymd(t);
+}
+function setSel(i) {
+  an.sel = i; const x = an.px[i], y = an.py[i], vs = an.vs, pr = an.pr;
+  $("cx").setAttribute("x1", x); $("cx").setAttribute("x2", x); $("cd").setAttribute("cx", x); $("cd").setAttribute("cy", y);
+  let dl = "";
+  if (i > 0 && vs[i - 1] !== 0) { const pc = (vs[i] - vs[i - 1]) / Math.abs(vs[i - 1]) * 100; dl = ` <span style="color:var(${good(pc > 0) ? "--in" : "--out"});font-size:12px">${pc >= 0 ? "▲" : "▼"} ${Math.abs(Math.round(pc))}% vs sebelumnya</span>`; }
+  $("ci").innerHTML = `<b>${pr[i].l}</b><span style="font-weight:800;font-size:18px">${fv(vs[i])}</span>${dl}`;
+}
+function renderAn() {
+  const n = WIN[an.tf][an.w], pr = periods(an.tf, n), idx = {}; pr.forEach((p, i) => idx[p.k] = i);
+  const vs = Array(n).fill(0), wr = [];
+  all.forEach(r => {
+    if (an.cats.size && !an.cats.has(r.kategori)) return;
+    const isIn = r.tipe === "In"; if (an.ty !== "Net" && (an.ty === "In") !== isIn) return;
+    const i = idx[bkey(an.tf, r.moment)]; if (i === undefined) return;
+    vs[i] += an.ty === "Net" ? (isIn ? r.nominal : -r.nominal) : r.nominal; wr.push(r);
+  });
+  if (an.sel === null || an.sel >= n) an.sel = n - 1;
+  an.vs = vs; an.pr = pr;
+  // geometri chart
+  const W = 340, H = 200, L = 40, R = 10, T = 12, B = 22, step = n > 1 ? (W - L - R) / (n - 1) : 0;
+  const lo = Math.min(0, ...vs), hi = Math.max(0, ...vs, 1), Y = v => T + (hi - v) / ((hi - lo) || 1) * (H - T - B), X = i => L + i * step;
+  an.px = vs.map((_, i) => X(i)); an.py = vs.map(v => Y(v));
+  const lc = an.ty === "Out" ? "var(--out)" : an.ty === "In" ? "var(--in)" : "var(--acc)";
+  let g = "";
+  [0, 1 / 3, 2 / 3, 1].forEach(f => { const v = lo + f * (hi - lo), y = Y(v); g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L - 4}" y="${y + 3}" text-anchor="end" font-size="8" fill="var(--mute)">${v < 0 ? "-" : ""}${short(Math.abs(v))}</text>`; });
+  const pts = vs.map((v, i) => an.px[i] + "," + an.py[i]);
+  g += `<path d="M${pts.join("L")}L${an.px[n - 1]},${Y(0)}L${an.px[0]},${Y(0)}Z" fill="${lc}" opacity=".12"/><polyline points="${pts.join(" ")}" fill="none" stroke="${lc}" stroke-width="2" stroke-linejoin="round"/>`;
+  if (n <= 31) vs.forEach((v, i) => g += `<circle cx="${an.px[i]}" cy="${an.py[i]}" r="2" fill="${lc}"/>`);
+  const ev = Math.ceil(n / 6); pr.forEach((p, i) => { if ((n - 1 - i) % ev === 0) g += `<text x="${an.px[i]}" y="${H - 6}" text-anchor="middle" font-size="8" fill="var(--mute)">${p.x}</text>`; });
+  g += `<line id="cx" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-dasharray="3 3" opacity=".5"/><circle id="cd" r="4.5" fill="${lc}" stroke="var(--surf)" stroke-width="2"/>`;
+  // EDA
+  const sum = vs.reduce((a, b) => a + b, 0), mean = sum / n, srt = vs.slice().sort((a, b) => a - b), med = n % 2 ? srt[(n - 1) / 2] : (srt[n / 2 - 1] + srt[n / 2]) / 2;
+  const mx = Math.max(...vs), mn = Math.min(...vs); let sx = 0, sy = 0, sxy = 0, sxx = 0; vs.forEach((y, i) => { sx += i; sy += y; sxy += i * y; sxx += i * i; });
+  const slope = (n * sxy - sx * sy) / ((n * sxx - sx * sx) || 1), flat = !mean || Math.abs(slope) < .01 * Math.abs(mean);
+  const tcol = flat ? "var(--mute)" : good(slope > 0) ? "var(--in)" : "var(--out)";
+  const big = wr.length && an.ty !== "Net" ? wr.reduce((a, b) => b.nominal > a.nominal ? b : a) : null;
+  const cs = {}; if (an.ty !== "Net") wr.forEach(r => cs[r.kategori] = (cs[r.kategori] || 0) + r.nominal);
+  const top = Object.entries(cs).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const seg = (items, attr, cur2) => `<div class="seg sm f">` + items.map(([k, t]) => `<button data-${attr}="${k}" class="${k == cur2 ? "on" : ""}">${t}</button>`).join("") + "</div>";
+  $("ab").innerHTML = seg(Object.entries(TFN), "tf", an.tf) + seg(Object.entries(TYN), "ty", an.ty) + seg(WIN[an.tf].map((v, i) => [i, v + " " + UNIT[an.tf]]), "w", an.w) +
+    `<div id="ci"></div><svg id="cv" class="cv" viewBox="0 0 ${W} ${H}">${g}</svg>` +
+    `<h3>Kategori <span class="note">(bisa pilih lebih dari satu)</span></h3><div class="chips"><button data-call="1" class="${an.cats.size ? "" : "on"}">Semua</button>` + Object.keys(CATS).map(k => `<button data-c="${esc(k)}" class="${an.cats.has(k) ? "on" : ""}">${CATS[k][0]} ${esc(k)}</button>`).join("") + "</div>" +
+    `<h3>Ringkasan ${TYN[an.ty]} · ${TFN[an.tf]}</h3><div class="st"><div><span>Total</span><b>${fv(sum)}</b></div><div><span>Rata-rata/${UNIT[an.tf]}</span><b>${fv(mean)}</b></div><div><span>Median</span><b>${fv(med)}</b></div><div><span>Tren</span><b style="color:${tcol}">${flat ? "Stabil" : (slope > 0 ? "↗ naik " : "↘ turun ") + short(Math.abs(slope)) + "/" + UNIT[an.tf]}</b></div>` +
+    `<div><span>Tertinggi</span><b>${fv(mx)}</b><span>${pr[vs.indexOf(mx)].l}</span></div><div><span>Terendah</span><b>${fv(mn)}</b><span>${pr[vs.indexOf(mn)].l}</span></div>` +
+    `<div><span>Jumlah transaksi</span><b>${wr.length}</b></div><div><span>Rata-rata/transaksi</span><b>${an.ty !== "Net" && wr.length ? rp(sum / wr.length) : "-"}</b></div></div>` +
+    (big ? `<h3>Transaksi terbesar</h3><div class="row" style="cursor:default"><span class="ico" style="background:${catOf(big.kategori)[1]}26">${catOf(big.kategori)[0]}</span><span class="t"><b>${esc(big.kategori)}</b><span>${esc(big.keterangan || "-")} · ${big.moment.substring(0, 10)}</span></span><span class="a">${rp(big.nominal)}</span></div>` : "") +
+    (top.length ? `<h3>Porsi kategori</h3><div class="legend" style="padding:0">` + top.map(([c, v]) => `<button class="lg${an.cats.has(c) ? " sel" : ""}" data-c="${esc(c)}"><span class="dot" style="background:${catOf(c)[1]}"></span><span class="n">${esc(c)}</span><span class="p">${Math.round(v / sum * 100)}%</span><span class="v">${rp(v)}</span></button>`).join("") + "</div>" : "");
+  const cv = $("cv"), mv = e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; setSel(Math.max(0, Math.min(n - 1, n > 1 ? Math.round((x - L) / step) : 0))); };
+  cv.onpointerdown = mv; cv.onpointermove = mv; setSel(an.sel);
 }
 $("ab").onclick = e => {
-  const k = e.target.closest("[data-k]"); if (k) { an.sel = k.dataset.k; an.day = null; renderAn(); return; }
-  const d = e.target.closest("[data-d]"); if (d) { an.day = +d.dataset.d === an.day ? null : +d.dataset.d; renderAn(); return; }
-  const c = e.target.closest("[data-c]"); if (c) { an.cat = an.cat === c.dataset.c ? null : c.dataset.c; renderAn(); }
+  const b = e.target.closest("button"); if (!b) return; const d = b.dataset;
+  if (d.tf) { an.tf = d.tf; an.w = 1; an.sel = null; }
+  else if (d.ty) { an.ty = d.ty; }
+  else if (d.w) { an.w = +d.w; an.sel = null; }
+  else if (d.call) an.cats.clear();
+  else if (d.c) { if (an.cats.has(d.c)) an.cats.delete(d.c); else an.cats.add(d.c); }
+  else return;
+  renderAn();
 };
-$("ar").onclick = e => { const b = e.target.closest("button"); if (!b) return; an.r = +b.dataset.r; [...$("ar").children].forEach(x => x.classList.toggle("on", x === b)); renderAn(); };
 $("anb").onclick = () => { $("an").style.display = "block"; renderAn(); };
 $("ax").onclick = () => { $("an").style.display = "none"; };
-try { if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } } catch (e) {}
+try { if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); if (Telegram.WebApp.disableVerticalSwipes) Telegram.WebApp.disableVerticalSwipes(); } } catch (e) {}
 render();
 refresh();
 </script>
