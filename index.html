@@ -93,24 +93,31 @@ main.ia,main.ib{animation:fd .18s ease}@keyframes fd{from{opacity:.35}}
 .note{font-size:12px;color:var(--mute);margin:4px 0}
 .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:4px}
 .bgr{padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.bgr .l{display:flex;justify-content:space-between;gap:8px}.bgr small{color:var(--mute);font-size:12px}
+.sh{margin-bottom:8px}.sh button{font-size:14px;font-weight:600;color:var(--acc);padding:4px 2px}
+.wl{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:4px 18px 8px}
+.wl button{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:16px;background:var(--surf);border:1px solid var(--line);font-size:12px;font-weight:600}.wl button.on{border-color:var(--acc)}
+div.row{cursor:default}
 </style>
 </head>
 <body>
 <header>
-  <div class="top"><div class="seg"><button id="mDay">Hari</button><button id="mMon" class="on">Bulan</button><button id="mYr">Tahun</button></div><div><button id="anb" aria-label="Analitik">📊</button><button id="rf" aria-label="Segarkan data">⟳</button></div></div>
+  <div class="top"><div class="seg"><button id="mDay" class="on">Hari</button><button id="mMon">Bulan</button><button id="mYr">Tahun</button></div><div><button id="anb" aria-label="Analitik">📊</button><button id="rf" aria-label="Segarkan data">⟳</button></div></div>
   <div class="nav"><button id="prev" aria-label="Sebelumnya">‹</button><button id="lbl" aria-label="Pilih periode"></button><button id="next" aria-label="Berikutnya">›</button></div>
   <div class="sum"><div>Masuk<b id="sin"></b></div><div>Keluar<b id="sout"></b></div><div>Selisih<b id="sbal"></b></div></div>
 </header>
 <main>
   <div class="donut"><svg id="dn" viewBox="0 0 42 42"></svg></div>
+  <div class="wl" id="wl"></div>
   <div class="legend" id="lg"></div>
     <div class="hh"><h3>Riwayat</h3><div class="seg sm"><button id="sDate" class="on">Tanggal</button><button id="sCat">Kategori</button><button id="sNom">Nominal</button></div></div>
   <div class="hist"><input id="q" type="search" placeholder="Cari keterangan, kategori, nominal" autocomplete="off"><div id="fc"></div></div>
   <div class="hist" id="hs"></div>
+  <div class="note" style="text-align:center;padding:24px 0 0">v2.0 · 21-11-26</div>
 </main>
 <div class="fab"><button class="m" id="addOut" aria-label="Tambah pengeluaran">−</button><button class="p" id="addIn" aria-label="Tambah pemasukan">+</button></div>
 <div id="ov"></div>
 <div id="sheet" role="dialog" aria-modal="true">
+  <div class="sh"><button id="bk">‹ Kembali</button></div>
   <div class="tt"><button id="tOut" class="o">Pengeluaran</button><button id="tIn" class="i">Pemasukan</button></div>
   <label>Nominal (Rp)</label><div id="nom" class="nomd">0</div><div id="nres" class="note"></div><div class="kp" id="kp"></div>
   <label>Kategori</label><div class="chips" id="chips"></div>
@@ -136,8 +143,11 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", 
 const MON = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 const DAYN = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
 const catOf = k => CATS[k] || CATS.Other;
+const WCOL = {red: "#e5484d", yellow: "#f5a524", green: "#2fb47c"}, WN = {red: "Red Wallet", yellow: "Yellow Wallet", green: "Green Wallet"};
+const WAL = k => k === "Invest" ? "green" : ["Daily Meals", "Transport", "Papan"].includes(k) ? "red" : "yellow";
+let selW = null;
 
-let key = "", mode = "month", cur = new Date(), all = [], budgets = [], fcat = null, sortM = "date", nomDir = "desc", open = new Set(), q = "", lastSync = 0;
+let key = "", mode = "day", cur = new Date(), all = [], budgets = [], fcat = null, sortM = "date", nomDir = "desc", open = new Set(), q = "", lastSync = 0;
 let form = {type: "Out", cat: "Daily Meals", uid: null};
 try {
   key = localStorage.getItem("fk") || "";
@@ -194,9 +204,9 @@ function label() {
   if (mode === "day") return DAYN[cur.getDay()] + ", " + cur.getDate() + " " + MON[cur.getMonth()] + " " + cur.getFullYear();
   return mode === "year" ? String(cur.getFullYear()) : MON[cur.getMonth()] + " " + cur.getFullYear();
 }
-function rowHtml(r, full) {
-  const c = catOf(r.kategori), isIn = r.tipe === "In";
-  return `<button class="row" data-uid="${esc(r.uid)}"><span class="ico" style="background:${c[1]}26">${c[0]}</span><span class="t"><b>${esc(r.kategori)}</b><span>${esc(r.keterangan || "-")} · ${r.moment.substring(full ? 0 : 11, 16)}</span></span><span class="a" style="color:var(${isIn ? "--in" : "--out"})">${isIn ? "+" : "-"}${rp(r.nominal)}</span></button>`;
+function rowHtml(r, full, tag) {
+  const c = catOf(r.kategori), isIn = r.tipe === "In", T = tag || "button";
+  return `<${T} class="row" data-uid="${esc(r.uid)}"><span class="ico" style="background:${c[1]}26">${c[0]}</span><span class="t"><b>${esc(r.keterangan || "Tanpa keterangan")}</b><span>${esc(r.kategori)} · ${r.moment.substring(full ? 0 : 11, 16)}</span></span><span class="a" style="color:var(${isIn ? "--in" : "--out"})">${isIn ? "+" : "-"}${rp(r.nominal)}</span></${T}>`;
 }
 function ring(p) {
   const inf = p === Infinity, col = inf || p > 100 ? "var(--out)" : p >= 80 ? "#f5a524" : "var(--in)", d = inf ? 100 : Math.min(p, 100);
@@ -215,18 +225,24 @@ function render() {
   const by = {};
   outs.forEach(r => by[r.kategori] = (by[r.kategori] || 0) + r.nominal);
   const ent = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  const wt = {red: 0, yellow: 0, green: 0}; outs.forEach(r => wt[WAL(r.kategori)] += r.nominal);
+  const sw = selW && wt[selW] ? selW : null;
   let svg = '<circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--line)" stroke-width="5"/>', off = 25;
-  ent.forEach(([k, v]) => {
-    const p = v / cout * 100;
-    svg += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${catOf(k)[1]}" stroke-width="5" stroke-dasharray="${p} ${100 - p}" stroke-dashoffset="${off}"/>`;
+  ["red", "yellow", "green"].forEach(w => {
+    const v = wt[w]; if (!v) return;
+    const p = v / cout * 100, on = sw === w;
+    svg += `<circle data-w="${w}" cx="21" cy="21" r="15.9155" fill="none" stroke="${WCOL[w]}" stroke-width="${on ? 6.5 : 5}" opacity="${sw && !on ? .4 : 1}" stroke-dasharray="${p} ${100 - p}" stroke-dashoffset="${off}" style="cursor:pointer"/>`;
     off -= p;
   });
-  svg += `<text x="21" y="20" text-anchor="middle" font-size="2.6" fill="var(--mute)">Keluar</text><text x="21" y="25" text-anchor="middle" font-size="4.6" font-weight="800" fill="var(--ink)">${short(cout)}</text>`;
+  svg += sw
+    ? `<text x="21" y="18.5" text-anchor="middle" font-size="2.4" fill="var(--mute)">${WN[sw]}</text><text x="21" y="23.5" text-anchor="middle" font-size="3.4" font-weight="800" fill="var(--ink)">${rp(wt[sw])}</text><text x="21" y="27.8" text-anchor="middle" font-size="3.2" font-weight="800" fill="${WCOL[sw]}">${Math.round(wt[sw] / cout * 100)}%</text>`
+    : `<text x="21" y="20" text-anchor="middle" font-size="2.6" fill="var(--mute)">Keluar</text><text x="21" y="25" text-anchor="middle" font-size="4.6" font-weight="800" fill="var(--ink)">${short(cout)}</text>`;
+  $("wl").innerHTML = ["red", "yellow", "green"].map(w => `<button data-w="${w}" class="${sw === w ? "on" : ""}"><span class="dot" style="background:${WCOL[w]}"></span>${WN[w]}${wt[w] ? " · " + short(wt[w]) : ""}</button>`).join("");
   $("dn").innerHTML = svg;
   const bm = {}; budgets.forEach(b => bm[b.kategori] = b.budget);
   const isM = mode === "month" && budgets.length;
   const rg = (k, v) => !isM ? "" : (k in bm ? ring(bm[k] > 0 ? v / bm[k] * 100 : Infinity) : '<span class="rg"></span>');
-  let lgh = ent.map(([k, v]) => `<button class="lg${fcat === k ? " sel" : fcat ? " dim" : ""}" data-k="${esc(k)}"><span class="dot" style="background:${catOf(k)[1]}"></span><span class="n">${esc(k)}</span><span class="p">${Math.round(v / cout * 100)}%</span><span class="v">${rp(v)}</span>${rg(k, v)}</button>`).join("");
+  let lgh = ent.map(([k, v]) => `<button class="lg${fcat === k ? " sel" : fcat ? " dim" : ""}" data-k="${esc(k)}"><span class="dot" style="background:${WCOL[WAL(k)]}"></span><span class="n">${esc(k)}</span><span class="p">${Math.round(v / cout * 100)}%</span><span class="v">${rp(v)}</span>${rg(k, v)}</button>`).join("");
   if (isM) { const tb = budgets.reduce((a, b) => a + b.budget, 0); lgh += `<div class="lg tot"><span class="n"><b>Total vs anggaran</b></span><span class="v">${rp(cout)} / ${rp(tb)}</span>${tb > 0 ? ring(cout / tb * 100) : '<span class="rg"></span>'}</div>`; }
   $("lg").innerHTML = lgh;
 
@@ -266,10 +282,18 @@ function openSheet(r, type) {
   const n = new Date();
   $("wkt").value = r ? r.moment.substring(0, 16).replace(" ", "T") : ymd(mode === "day" ? cur : n) + "T" + pad(n.getHours()) + ":" + pad(n.getMinutes());
   $("del").style.display = r ? "" : "none";
+  form.init = snap(); bkArm = false; $("bk").textContent = "‹ Kembali";
   $("ov").style.display = "block";
   requestAnimationFrame(() => $("sheet").classList.add("open"));
 }
 function closeSheet() { $("sheet").classList.remove("open"); $("pk").classList.remove("open"); $("ov").style.display = "none"; }
+let bkArm = false;
+const snap = () => JSON.stringify([ex, $("ket").value, form.type, form.cat, $("wkt").value]);
+function tryClose() {
+  if ($("pk").classList.contains("open") || snap() === form.init) { closeSheet(); return; }
+  if (!bkArm) { bkArm = true; $("bk").textContent = "Buang entri? Tap lagi"; setTimeout(() => { bkArm = false; $("bk").textContent = "‹ Kembali"; }, 3000); return; }
+  bkArm = false; $("bk").textContent = "‹ Kembali"; closeSheet();
+}
 // Optimistic: tampilan langsung berubah, sinkron ke sheet jalan di belakang.
 async function save() {
   const nominal = calc();
@@ -325,9 +349,10 @@ $("sNom").onclick = () => setSort("nom"); $("sDate").onclick = () => setSort("da
 $("rf").onclick = refresh;
 $("addOut").onclick = () => openSheet(null, "Out"); $("addIn").onclick = () => openSheet(null, "In");
 $("tOut").onclick = () => setType("Out"); $("tIn").onclick = () => setType("In");
-$("ov").onclick = closeSheet; $("save").onclick = save; $("del").onclick = del;
+$("ov").onclick = tryClose; $("bk").onclick = tryClose; $("save").onclick = save; $("del").onclick = del;
 $("chips").onclick = e => { const b = e.target.closest("button"); if (b) { form.cat = b.dataset.c; drawChips(); } };
 $("lg").onclick = e => { const b = e.target.closest(".lg[data-k]"); if (b) { fcat = fcat === b.dataset.k ? null : b.dataset.k; render(); } };
+$("dn").onclick = $("wl").onclick = e => { const b = e.target.closest("[data-w]"); if (b) { selW = selW === b.dataset.w ? null : b.dataset.w; render(); } };
 $("fc").onclick = e => { if (e.target.closest("#cf")) { fcat = null; render(); } };
 $("q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
 $("hs").onclick = e => {
@@ -410,15 +435,17 @@ document.addEventListener("touchmove", e => {
 }, {passive: false});
 
 // ===== Analitik =====
-const WIN = {day: [14, 30, 90], week: [8, 12, 26], month: [6, 12, 24], year: [3, 5, 10]};
+const WIN = {day: [7, 14, 30], week: [4, 8, 12], month: [6, 12, 24], year: [3, 5, 10]};
 const TFN = {day: "Harian", week: "Mingguan", month: "Bulanan", year: "Tahunan"}, UNIT = {day: "hari", week: "pekan", month: "bln", year: "thn"};
 const TYN = {Out: "Keluar", In: "Masuk", Net: "Selisih"};
-let an = {tf: "month", ty: "Out", w: 1, cats: new Set(), sel: null, px: [], py: [], vs: [], pr: []};
+let an = {tf: "day", ty: "Out", w: 1, cats: new Set(), sel: null, pick: null, px: [], py: [], vs: [], pr: [], wr: [], wi: []};
+// Entri "Daily Meals" bernilai 1 = penanda memasak bahan yang sudah dibeli, tidak dihitung di analitik
+const skipA = r => r.kategori === "Daily Meals" && r.nominal === 1;
 const fv = v => (v < 0 ? "-" : "") + rp(Math.abs(v));
 const good = up => an.ty === "Out" ? !up : up;
-function periods(tf, n) {
+function periods(tf, count, skip) {
   const out = [], t = new Date(); t.setHours(0, 0, 0, 0);
-  for (let i = n - 1; i >= 0; i--) {
+  for (let i = count - 1 + skip; i >= skip; i--) {
     let d;
     if (tf === "day") { d = new Date(t); d.setDate(t.getDate() - i); out.push({k: ymd(d), l: DAYN[d.getDay()] + ", " + d.getDate() + " " + MON[d.getMonth()].substring(0, 3) + " " + d.getFullYear(), x: d.getDate() + "/" + (d.getMonth() + 1)}); }
     else if (tf === "week") { d = new Date(t); d.setDate(t.getDate() - ((t.getDay() + 6) % 7) - 7 * i); const e = new Date(d); e.setDate(d.getDate() + 6); out.push({k: ymd(d), l: d.getDate() + " " + MON[d.getMonth()].substring(0, 3) + " – " + e.getDate() + " " + MON[e.getMonth()].substring(0, 3), x: d.getDate() + "/" + (d.getMonth() + 1)}); }
@@ -439,18 +466,37 @@ function setSel(i) {
   if (i > 0 && vs[i - 1] !== 0) { const pc = (vs[i] - vs[i - 1]) / Math.abs(vs[i - 1]) * 100; dl = ` <span style="color:var(${good(pc > 0) ? "--in" : "--out"});font-size:12px">${pc >= 0 ? "▲" : "▼"} ${Math.abs(Math.round(pc))}% vs sebelumnya</span>`; }
   $("ci").innerHTML = `<b>${pr[i].l}</b><span style="font-weight:800;font-size:18px">${fv(vs[i])}</span>${dl}`;
 }
+function setPick() {
+  const c = $("cp"); if (!c) return;
+  if (an.pick === null) { c.setAttribute("r", 0); return; }
+  c.setAttribute("cx", an.px[an.pick]); c.setAttribute("cy", an.py[an.pick]); c.setAttribute("r", 7);
+}
+// Daftar transaksi: semua di rentang, atau hanya pada titik timeline yang dipilih
+function renderList() {
+  const sel = an.wr.filter((r, k) => an.pick === null || an.wi[k] === an.pick);
+  $("al").innerHTML = `<h3>${an.pick === null ? "Semua transaksi" : esc(an.pr[an.pick].l)} · ${sel.length}</h3>` +
+    (an.pick !== null ? '<div class="note">Tap titik yang sama lagi untuk kembali ke semua</div>' : '<div class="note">Tap titik di chart untuk melihat transaksi di titik itu</div>') +
+    (sel.length ? sel.slice(0, 100).map(r => rowHtml(r, true, "div")).join("") + (sel.length > 100 ? `<div class="note">dan ${sel.length - 100} lainnya</div>` : "") : '<div class="empty">Tidak ada transaksi.</div>');
+  setPick();
+}
 function renderAn() {
-  const n = WIN[an.tf][an.w], pr = periods(an.tf, n), idx = {}; pr.forEach((p, i) => idx[p.k] = i);
-  const vs = Array(n).fill(0), wr = [];
+  const n = WIN[an.tf][an.w], td = ymd(new Date());
+  // Harian: jika hari ini belum ada entri, hari ini tidak dihitung (rentang berakhir kemarin)
+  const skip = an.tf === "day" && !all.some(r => r.moment.startsWith(td) && !skipA(r)) ? 1 : 0;
+  const pr2 = periods(an.tf, 2 * n, skip), idx = {}; pr2.forEach((p, i) => idx[p.k] = i);
+  const v2 = Array(2 * n).fill(0), wr = [], wi = [];
   all.forEach(r => {
-    if (an.cats.size && !an.cats.has(r.kategori)) return;
+    if (skipA(r)) return;
+    if (an.cats.size ? !an.cats.has(r.kategori) : r.kategori === "Papan") return;
     const isIn = r.tipe === "In"; if (an.ty !== "Net" && (an.ty === "In") !== isIn) return;
     const i = idx[bkey(an.tf, r.moment)]; if (i === undefined) return;
-    vs[i] += an.ty === "Net" ? (isIn ? r.nominal : -r.nominal) : r.nominal; wr.push(r);
+    v2[i] += an.ty === "Net" ? (isIn ? r.nominal : -r.nominal) : r.nominal;
+    if (i >= n) { wr.push(r); wi.push(i - n); }
   });
+  const vs = v2.slice(n), pvs = v2.slice(0, n), pr = pr2.slice(n), pp = pr2.slice(0, n);
   if (an.sel === null || an.sel >= n) an.sel = n - 1;
-  an.vs = vs; an.pr = pr;
-  // geometri chart
+  if (an.pick !== null && an.pick >= n) an.pick = null;
+  an.vs = vs; an.pr = pr; an.wr = wr; an.wi = wi;
   const W = 340, H = 200, L = 40, R = 10, T = 12, B = 22, step = n > 1 ? (W - L - R) / (n - 1) : 0;
   const lo = Math.min(0, ...vs), hi = Math.max(0, ...vs, 1), Y = v => T + (hi - v) / ((hi - lo) || 1) * (H - T - B), X = i => L + i * step;
   an.px = vs.map((_, i) => X(i)); an.py = vs.map(v => Y(v));
@@ -461,32 +507,31 @@ function renderAn() {
   g += `<path d="M${pts.join("L")}L${an.px[n - 1]},${Y(0)}L${an.px[0]},${Y(0)}Z" fill="${lc}" opacity=".12"/><polyline points="${pts.join(" ")}" fill="none" stroke="${lc}" stroke-width="2" stroke-linejoin="round"/>`;
   if (n <= 31) vs.forEach((v, i) => g += `<circle cx="${an.px[i]}" cy="${an.py[i]}" r="2" fill="${lc}"/>`);
   const ev = Math.ceil(n / 6); pr.forEach((p, i) => { if ((n - 1 - i) % ev === 0) g += `<text x="${an.px[i]}" y="${H - 6}" text-anchor="middle" font-size="8" fill="var(--mute)">${p.x}</text>`; });
-  g += `<line id="cx" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-dasharray="3 3" opacity=".5"/><circle id="cd" r="4.5" fill="${lc}" stroke="var(--surf)" stroke-width="2"/>`;
+  g += `<line id="cx" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-dasharray="3 3" opacity=".5"/><circle id="cd" r="4.5" fill="${lc}" stroke="var(--surf)" stroke-width="2"/><circle id="cp" r="0" fill="none" stroke="var(--acc)" stroke-width="2"/>`;
   // EDA
-  const sum = vs.reduce((a, b) => a + b, 0), mean = sum / n, srt = vs.slice().sort((a, b) => a - b), med = n % 2 ? srt[(n - 1) / 2] : (srt[n / 2 - 1] + srt[n / 2]) / 2;
-  const mx = Math.max(...vs), mn = Math.min(...vs); let sx = 0, sy = 0, sxy = 0, sxx = 0; vs.forEach((y, i) => { sx += i; sy += y; sxy += i * y; sxx += i * i; });
+  const tot = a => a.reduce((x, y) => x + y, 0), sum = tot(vs), psum = tot(pvs), dsum = sum - psum, dpc = psum ? dsum / Math.abs(psum) * 100 : null;
+  const mean = sum / n, srt = vs.slice().sort((a, b) => a - b), med = n % 2 ? srt[(n - 1) / 2] : (srt[n / 2 - 1] + srt[n / 2]) / 2;
+  let sx = 0, sy = 0, sxy = 0, sxx = 0; vs.forEach((y, i) => { sx += i; sy += y; sxy += i * y; sxx += i * i; });
   const slope = (n * sxy - sx * sy) / ((n * sxx - sx * sx) || 1), flat = !mean || Math.abs(slope) < .01 * Math.abs(mean);
-  const tcol = flat ? "var(--mute)" : good(slope > 0) ? "var(--in)" : "var(--out)";
-  const big = wr.length && an.ty !== "Net" ? wr.reduce((a, b) => b.nominal > a.nominal ? b : a) : null;
-  const cs = {}; if (an.ty !== "Net") wr.forEach(r => cs[r.kategori] = (cs[r.kategori] || 0) + r.nominal);
-  const top = Object.entries(cs).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const tcol = flat ? "var(--mute)" : good(slope > 0) ? "var(--in)" : "var(--out)", dcol = !dsum ? "var(--mute)" : good(dsum > 0) ? "var(--in)" : "var(--out)";
   const seg = (items, attr, cur2) => `<div class="seg sm f">` + items.map(([k, t]) => `<button data-${attr}="${k}" class="${k == cur2 ? "on" : ""}">${t}</button>`).join("") + "</div>";
   $("ab").innerHTML = seg(Object.entries(TFN), "tf", an.tf) + seg(Object.entries(TYN), "ty", an.ty) + seg(WIN[an.tf].map((v, i) => [i, v + " " + UNIT[an.tf]]), "w", an.w) +
     `<div id="ci"></div><svg id="cv" class="cv" viewBox="0 0 ${W} ${H}">${g}</svg>` +
-    `<h3>Kategori <span class="note">(bisa pilih lebih dari satu)</span></h3><div class="chips"><button data-call="1" class="${an.cats.size ? "" : "on"}">Semua</button>` + Object.keys(CATS).map(k => `<button data-c="${esc(k)}" class="${an.cats.has(k) ? "on" : ""}">${CATS[k][0]} ${esc(k)}</button>`).join("") + "</div>" +
+    `<h3>Kategori <span class="note">(default tanpa Papan, pilih manual untuk menyertakannya)</span></h3><div class="chips"><button data-call="1" class="${an.cats.size ? "" : "on"}">Semua (tanpa Papan)</button>` + Object.keys(CATS).map(k => `<button data-c="${esc(k)}" class="${an.cats.has(k) ? "on" : ""}">${CATS[k][0]} ${esc(k)}</button>`).join("") + "</div>" +
     `<h3>Ringkasan ${TYN[an.ty]} · ${TFN[an.tf]}</h3><div class="st"><div><span>Total</span><b>${fv(sum)}</b></div><div><span>Rata-rata/${UNIT[an.tf]}</span><b>${fv(mean)}</b></div><div><span>Median</span><b>${fv(med)}</b></div><div><span>Tren</span><b style="color:${tcol}">${flat ? "Stabil" : (slope > 0 ? "↗ naik " : "↘ turun ") + short(Math.abs(slope)) + "/" + UNIT[an.tf]}</b></div>` +
-    `<div><span>Tertinggi</span><b>${fv(mx)}</b><span>${pr[vs.indexOf(mx)].l}</span></div><div><span>Terendah</span><b>${fv(mn)}</b><span>${pr[vs.indexOf(mn)].l}</span></div>` +
-    `<div><span>Jumlah transaksi</span><b>${wr.length}</b></div><div><span>Rata-rata/transaksi</span><b>${an.ty !== "Net" && wr.length ? rp(sum / wr.length) : "-"}</b></div></div>` +
-    (big ? `<h3>Transaksi terbesar</h3><div class="row" style="cursor:default"><span class="ico" style="background:${catOf(big.kategori)[1]}26">${catOf(big.kategori)[0]}</span><span class="t"><b>${esc(big.kategori)}</b><span>${esc(big.keterangan || "-")} · ${big.moment.substring(0, 10)}</span></span><span class="a">${rp(big.nominal)}</span></div>` : "") +
-    (top.length ? `<h3>Porsi kategori</h3><div class="legend" style="padding:0">` + top.map(([c, v]) => `<button class="lg${an.cats.has(c) ? " sel" : ""}" data-c="${esc(c)}"><span class="dot" style="background:${catOf(c)[1]}"></span><span class="n">${esc(c)}</span><span class="p">${Math.round(v / sum * 100)}%</span><span class="v">${rp(v)}</span></button>`).join("") + "</div>" : "");
-  const cv = $("cv"), mv = e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; setSel(Math.max(0, Math.min(n - 1, n > 1 ? Math.round((x - L) / step) : 0))); };
-  cv.onpointerdown = mv; cv.onpointermove = mv; setSel(an.sel);
+    `<div><span>Periode sebelumnya</span><b>${fv(psum)}</b><span>${pp[0].x} – ${pp[n - 1].x}</span></div><div><span>Perubahan</span><b style="color:${dcol}">${dsum >= 0 ? "+" : "-"}${rp(Math.abs(dsum))}</b><span style="color:${dcol}">${dpc === null ? "-" : (dpc >= 0 ? "+" : "") + Math.round(dpc) + "%"}</span></div>` +
+    `<div><span>Jumlah transaksi</span><b>${wr.length}</b></div><div><span>Rata-rata/transaksi</span><b>${an.ty !== "Net" && wr.length ? rp(sum / wr.length) : "-"}</b></div></div><div id="al"></div>`;
+  const cv = $("cv"); let down = null;
+  const mv = e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W; setSel(Math.max(0, Math.min(n - 1, n > 1 ? Math.round((x - L) / step) : 0))); };
+  cv.onpointerdown = e => { down = e.clientX; mv(e); }; cv.onpointermove = mv;
+  cv.onpointerup = e => { const moved = down !== null && Math.abs(e.clientX - down) > 8; down = null; an.pick = !moved && an.pick === an.sel ? null : an.sel; renderList(); };
+  setSel(an.sel); renderList();
 }
 $("ab").onclick = e => {
   const b = e.target.closest("button"); if (!b) return; const d = b.dataset;
-  if (d.tf) { an.tf = d.tf; an.w = 1; an.sel = null; }
+  if (d.tf) { an.tf = d.tf; an.w = 1; an.sel = null; an.pick = null; }
   else if (d.ty) { an.ty = d.ty; }
-  else if (d.w) { an.w = +d.w; an.sel = null; }
+  else if (d.w) { an.w = +d.w; an.sel = null; an.pick = null; }
   else if (d.call) an.cats.clear();
   else if (d.c) { if (an.cats.has(d.c)) an.cats.delete(d.c); else an.cats.add(d.c); }
   else return;
